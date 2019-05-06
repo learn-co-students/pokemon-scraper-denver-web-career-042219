@@ -1,14 +1,14 @@
 require "pry"
 
 class Pokemon
+  attr_reader
+  attr_writer
   attr_accessor :id, :name, :type, :db, :hp
 
-  def initialize(id:, name:, type:, db:, hp:nil) #hp is an optional value, init with nil, updated with .find
-    @id = id
-    @name = name
-    @type = type
+  def initialize(attr_array, db)
+    @id, @name, @type, @hp =*attr_array
     @db = db
-    @hp = hp
+    # @hp = hp
     # is this duplicate work?
     # the hp is optional, it is not required to initialize an opbject but is auto defualted to nil \
   end
@@ -28,23 +28,35 @@ class Pokemon
 
   def self.find(id, db)
 
+    # binding.pry
+
     sql = <<-SQL
       SELECT *
       FROM pokemon
       WHERE id = ?
     SQL
 
-    db.execute(sql, id).map do |row|
-      Pokemon.new(id: row[0], name: row[1], type: row[2], db: db, hp: row[3])
+    # sql2 = <<-SQL
+    #   SELECT *
+    #   FROM pokemon
+    # SQL
+    #
+    # db.execute(sql2)
 
-      #the find is overwriting the pokemon object
-      #solution - add hp:row[3] pry into row nextime
+
+    db.execute(sql, id).map do |row|
+
+      Pokemon.new(id: row[0], name: row[1], type: row[2], db: db)
 
     end.first #The .first is v important!!! returns an array, get down one level
+
   end
 
 
   def alter_hp(hp, db)
+
+    # binding.pry
+    # self.hp = hp
 
     sql = <<-SQL
       UPDATE pokemon
@@ -52,7 +64,9 @@ class Pokemon
       WHERE ID = ?
     SQL
 
+
     db.execute(sql, hp, self.id)
+    # binding.pry
 
   end
 
@@ -60,6 +74,6 @@ class Pokemon
   #It is not adding the HP column in the data base I THINK
   # there is an issue between the named parameters and when I change and pass in new ones
 # expect(Pokemon.find(1, @db).hp).to eq(59)
-  # https://github.com/learn-co-curriculum/pokemon-scraper/wiki/Topic-Review
+
     # binding.pry
 end
